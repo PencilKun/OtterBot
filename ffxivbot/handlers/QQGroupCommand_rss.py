@@ -7,6 +7,7 @@ import random
 import requests
 import feedparser
 from bs4 import BeautifulSoup
+from django.db.utils import IntegrityError
 
 
 def SearchUser(Name,Channel="bilibili"):
@@ -72,7 +73,7 @@ def QQGroupCommand_rss(*args, **kwargs):
                 Group.save()
                 Msg = f"{RSS_User.name} 的{RSS_User.channel}订阅添加成功\n{RSS_Content}"
             else:
-                Msg = f"未设置 {Params_Name} 的订阅计划或未标注渠道信息,如(w:微,b:bilibili):\n/rss add w:最终幻想14 \n/rss add b:最终幻想14"
+                Msg = f"未设置 {Params_Name} 的订阅计划,自助配置\n/rss config {Params_Name}\n或未标注渠道信息,如(w:微,b:bilibili):\n/rss add w:最终幻想14 \n/rss add b:最终幻想14"
 
         elif Second_Command == "del":
             Params_Name = Params_Msg.replace('del','',1).strip()
@@ -102,8 +103,7 @@ def QQGroupCommand_rss(*args, **kwargs):
                     if Name == "None":
                         Msg = "未找到有效用户。"
                     else:
-                        RSU = RSSUser(name=Name,uid=Uid,channel="weibo")
-                        RSU.save()
+                        RSU, Create = RSSUser.objects.update_or_create(uid=Uid,channel="weibo",defaults={'name': Name})
                         Msg = f"已配置微博订阅信息【{Name}】--{Uid}"
                 except Exception as e:
                     logging.error(f"Second_Command_configw:_Error:{e}")
@@ -119,8 +119,7 @@ def QQGroupCommand_rss(*args, **kwargs):
                     if Name == "None":
                         Msg = "未找到有效用户。"
                     else:
-                        RSU = RSSUser(name=Name,uid=str(Uid),channel="bilibili")
-                        RSU.save()
+                        RSU, Create = RSSUser.objects.update_or_create(uid=Uid,channel="bilibili",defaults={'name': Name})
                         Msg = f"已配置B站动态订阅信息【{Name}】--{Uid}"
                 except Exception as e:
                     logging.error(f"Second_Command_configb:_Error:{e}")
@@ -129,7 +128,7 @@ def QQGroupCommand_rss(*args, **kwargs):
                     for Result in Search_Results:
                         Msg += f"\n/rss config b:{Result['Uid']}\n【Info】:{Result['User_Name']}【V】:{Result['Verified_Reason']}"
             else:
-                Msg="未标注渠道信息"
+                Msg="未标注渠道信息，以w:或b:开头+名称"
         else:
             Msg = "错误的命令，二级命令有:\"add\", \"del\", \"list\", \"config\""
 
