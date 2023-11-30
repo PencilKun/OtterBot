@@ -63,7 +63,7 @@ def PushGroupMsg(RSSUser,Entry,Push=False):
                         }
                     }
                 ]
-                logging.info("Pushing {} to group: {}".format(Entry["Entry_Url"], Group))
+                logging.info(f"Pushing {Entry['Entry_Url']} to group: {Group}")
                 if Push:
                     JData = {
                         "action": "send_group_msg",
@@ -78,8 +78,8 @@ def PushGroupMsg(RSSUser,Entry,Push=False):
                                    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0"
                                   }
                         R = requests.post(url=Url, headers=Headers, data=json.dumps(JData["params"]), timeout=5)
-                        if r.status_code!=200:
-                            logging.error(r.text)
+                        if R.status_code!=200:
+                            logging.error(R.text)
             except requests.ConnectionError as e:
                 logging.error(f"Pushing {Entry['Entry_Url']} to group: {Group} ConnectionError")
             except requests.ReadTimeout as e:
