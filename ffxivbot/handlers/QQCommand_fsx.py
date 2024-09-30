@@ -6,49 +6,49 @@ import traceback
 import re
 
 def Critical(Crit):
-    Rate = ((int(200*(Crit-400)/1900)+50)/1000)*100
-    Strength = (int(200*(Crit-400)/1900)+1400)/1000
+    Rate = ((int(200*(Crit-420)/2780)+50)/1000)*100
+    Strength = (int(200*(Crit-420)/2780)+1400)/1000
     NextCrit,NextRate = Crit,Rate
     while NextRate == Rate:
         NextCrit +=1
-        NextRate = ((int(200*(NextCrit-400)/1900)+50)/1000)*100
+        NextRate = ((int(200*(NextCrit-420)/2780)+50)/1000)*100
     return Rate, Strength, NextCrit
 def Direct(DH):
-    Rate = (int(550*(DH-400)/1900)/1000)*100
+    Rate = (int(550*(DH-420)/2780)/1000)*100
     NextDH,NextRate = DH,Rate
     while NextRate == Rate:
         NextDH +=1
-        NextRate = int(550*(NextDH-400)/1900)/1000
+        NextRate = (int(550*(NextDH-420)/2780)/1000)*100
     return Rate,NextDH
 def Determination(Det):
-    Damage = (1000+int(140*(Det-390)/1900))/1000
+    Damage = (1000+int(140*(Det-440)/2780))/1000
     NextDet,NextDamage = Det,Damage
     while NextDamage == Damage:
         NextDet +=1
-        NextDamage = (1000+int(140*(NextDet-390)/1900))/1000
+        NextDamage = (1000+int(140*(NextDet-440)/2780))/1000
     return NextDamage,NextDet
 def Tenacity(Ten):
-    OutDamage = (1000+int(100*(Ten-400)/1900))/1000
-    InDamage = ((1000-int(100*(Ten-400)/1900))/1000)*100
+    OutDamage = (1000+int(112*(Ten-420)/2780))/1000
+    InDamage = ((1000-int(200*(Ten-420)/2780))/1000)*100
     NextTen,NextOutDamage = Ten,OutDamage
     while NextOutDamage == OutDamage:
         NextTen +=1
-        NextOutDamage = (1000+int(100*(NextTen-400)/1900))/1000
+        NextOutDamage = ((1000-int(200*(NextTen-420)/2780))/1000)/1000
     return OutDamage,InDamage,NextTen
 def Speed(Spe):
     GCDList = ['1.5', '2.0', '2.5', '2.8', '3.0', '4.0']
     result = []
     for GCD in GCDList:
-        result.append((int(float(GCD)*1000*(1000+math.ceil(130*(400-Spe)/1900))/10000)/100))
+        result.append((int(float(GCD)*1000*(1000+math.ceil(130*(420-Spe)/2780))/10000)/100))
     GCDResult = dict(zip(GCDList,result))
-    GCDResult['DOT'] = (1000+int(130*(Spe-400)/1900))/1000
+    GCDResult['DOT'] = (1000+int(130*(Spe-420)/2780))/1000
     Next25,Next28,Next25speed,Next28speed = GCDResult['2.5'],GCDResult['2.8'],Spe,Spe
     while Next25 == GCDResult['2.5']:
         Next25speed +=1
-        Next25 = (int(2.5*1000*(1000+math.ceil(130*(400-Next25speed)/1900))/10000)/100)
+        Next25 = (int(2.5*1000*(1000+math.ceil(130*(420-Next25speed)/2780))/10000)/100)
     while Next28 == GCDResult['2.8']:
         Next28speed +=1
-        Next28 = (int(2.8*1000*(1000+math.ceil(130*(400-Next28speed)/1900))/10000)/100)
+        Next28 = (int(2.8*1000*(1000+math.ceil(130*(420-Next28speed)/2780))/10000)/100)
     GCDResult['Next25speed'] = Next25speed
     GCDResult['Next28speed'] = Next28speed
     return GCDResult 
@@ -57,7 +57,7 @@ def QQCommand_fsx(*args,**kwargs):
         Receive = kwargs["receive"]
         action_list = []
         s_msg = Receive["message"].replace("/fsx","",1).strip()
-        Msg = '版本 6.0 Lv90\n'
+        Msg = '版本 7.0 Lv100\n'
         MatchList = re.findall(r'\d+',s_msg)
         Number = -1
         if (MatchList):
@@ -67,9 +67,9 @@ def QQCommand_fsx(*args,**kwargs):
         if s_msg.find("help")==0 or s_msg=="" or Number < 390:
             Msg = '计算副属性,参数有暴击、直击、信念、坚韧、速度\n如：/fsx 暴击 2400\n参考地址https://www.akhmorning.com/allagan-studies/stats/'
         elif '暴击' in s_msg:
-            Msg += '暴击 {0} 的计算结果：\n暴击率：{1[0]}%\n暴击伤害：{1[1]}\n下个临界点:暴击 {1[2]}'.format(Number,Critical(Number))
+            Msg += '暴击 {0} 的计算结果：\n暴击率：{1[0]:.2f}%\n暴击伤害：{1[1]}\n下个临界点:暴击 {1[2]}'.format(Number,Critical(Number))
         elif '直击' in s_msg:
-            Msg += '直击 {0} 的计算结果：\n直击率：{1[0]}%\n直击伤害固定为125%。\n下个临界点:直击 {1[1]}'.format(Number,Direct(Number))
+            Msg += '直击 {0} 的计算结果：\n直击率：{1[0]:.2f}%\n直击伤害固定为125%。\n下个临界点:直击 {1[1]}'.format(Number,Direct(Number))
         elif '信念' in s_msg:
             Msg += '信念 {0} 的计算结果：\n伤害增益：{1[0]}倍\n下个临界点:信念 {1[1]}'.format(Number,Determination(Number))
         elif '坚韧' in s_msg:
